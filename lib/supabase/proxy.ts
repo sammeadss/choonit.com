@@ -1,7 +1,15 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/auth'];
+const PUBLIC_PATHS = [
+  '/',
+  '/login',
+  '/signup',
+  '/check-email',
+  '/forgot-password',
+  '/reset-password',
+  '/auth',
+];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -18,6 +26,7 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
+        // The refreshed cookies must be copied onto the response we return.
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
           response = NextResponse.next({ request });
@@ -29,6 +38,7 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // Don't run anything between creating the client and getClaims(); it can sign users out at random.
   const { data } = await supabase.auth.getClaims();
 
   if (!data?.claims && !isPublic(request.nextUrl.pathname)) {
