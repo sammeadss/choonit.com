@@ -37,6 +37,7 @@ export const profiles = pgTable(
   },
   (t) => [
     uniqueIndex('profiles_username_lower_idx').on(sql`lower(${t.username})`),
+    // Must match usernameSchema in lib/validation/auth.ts.
     check('profiles_username_format', sql`${t.username} ~ '^[A-Za-z0-9_]{3,20}$'`),
     check('profiles_bio_length', sql`char_length(${t.bio}) <= 160`),
   ],

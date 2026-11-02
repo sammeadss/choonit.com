@@ -21,6 +21,7 @@ export type SignUpState = {
   values?: { username: string; email: string };
 };
 
+// TODO: rate-limit before launch; lets callers enumerate usernames.
 export async function checkUsername(raw: string): Promise<UsernameStatus> {
   const parsed = usernameSchema.safeParse(raw);
   if (!parsed.success) return 'invalid';
@@ -56,6 +57,7 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
+    // Read by the on_auth_user_created trigger to create the profile.
     options: {
       data: { username: parsed.data.username },
       emailRedirectTo: `${origin}/auth/confirm`,
@@ -78,5 +80,6 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
     };
   }
 
+  // redirect() throws internally, so it must stay outside any try/catch.
   redirect(`/check-email?email=${encodeURIComponent(parsed.data.email)}`);
 }
