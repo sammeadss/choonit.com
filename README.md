@@ -39,7 +39,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Delete account removes the auth user (which cascades to profile, rankings and rank events) and the user's avatar file in Storage
 - Sentiment is an input to ranking only and is never shown back to the user (no tags, section headers or "last time" hints)
 - Usernames can be changed from Edit profile (same format rules, still unique); a cooldown will be added if profiles become public
-
+- The emailed confirmation link opens /auth/confirm (a route handler, not a page), which exchanges the code (or verifies the token hash once the email template can be customized) and sends the user to Profile
 # Design notes
 
 - Audience: casual listeners and audiophiles
@@ -69,6 +69,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 | Forgot password        | `/forgot-password`             | No                                    |
 | Reset password         | `/reset-password`              | No (reached from the emailed link)    |
 | Choose username        | `/choose-username`             | Yes (only until a username is chosen) |
+| Check email            | `/check-email`                 | No                                    |
 
 # Data sources
 
@@ -99,6 +100,11 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Lyrics, producers, labels, contributions
 - Insights and recommendations from factor data
 - Import listening history
+
+# Before launch
+- Buy the domain; set up custom SMTP (Resend or similar) and edit the confirmation email to use `token_hash`
+- Confirm "Confirm email" is on, and RLS is enabled on every table
+- Choose a license; review MusicBrainz commercial terms and cover art licensing
 
 # Flows
 
