@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const usernameSchema = z
   .string()
   .trim()
+  // Must match the profiles_username_format check in db/schema.ts.
   .regex(/^[A-Za-z0-9_]{3,20}$/, 'Use 3 to 20 letters, numbers or underscores.');
 
 export const signUpSchema = z.object({
