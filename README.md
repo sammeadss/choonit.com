@@ -40,6 +40,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Sentiment is an input to ranking only and is never shown back to the user (no tags, section headers or "last time" hints)
 - Usernames can be changed from Edit profile (same format rules, still unique); a cooldown will be added if profiles become public
 - The emailed confirmation link opens /auth/confirm (a route handler, not a page), which exchanges the code (or verifies the token hash once the email template can be customized) and sends the user to Profile
+
 # Design notes
 
 - Audience: casual listeners and audiophiles
@@ -102,6 +103,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Import listening history
 
 # Before launch
+
 - Buy the domain; set up custom SMTP (Resend or similar) and edit the confirmation email to use `token_hash`
 - Confirm "Confirm email" is on, and RLS is enabled on every table
 - Choose a license; review MusicBrainz commercial terms and cover art licensing
