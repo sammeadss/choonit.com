@@ -37,6 +37,8 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Google profile pictures are ignored; avatars are always uploaded
 - Email/password sign-ups must confirm their email before logging in; Google sign-ins are already verified
 - Delete account removes the auth user (which cascades to profile, rankings and rank events) and the user's avatar file in Storage
+- Sentiment is an input to ranking only and is never shown back to the user (no tags, section headers or "last time" hints)
+- Usernames can be changed from Edit profile (same format rules, still unique); a cooldown will be added if profiles become public
 
 # Design notes
 
