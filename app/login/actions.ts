@@ -1,5 +1,6 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
@@ -34,4 +35,34 @@ export async function logIn(_prev: LogInState, formData: FormData): Promise<LogI
   }
 
   redirect('/me');
+}
+
+export type ResendState = { sent?: boolean; error?: string };
+
+export async function resendConfirmation(
+  _prev: ResendState,
+  formData: FormData,
+): Promise<ResendState> {
+  const parsed = z.email().safeParse(String(formData.get('email') ?? ''));
+  const origin = (await headers()).get('origin');
+  if (!parsed.success || !origin) {
+    return { error: 'Something went wrong. Please try again.' };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: parsed.data,
+    options: { emailRedirectTo: `${origin}/auth/confirm` },
+  });
+
+  if (error) {
+    return {
+      error:
+        error.code === 'over_email_send_rate_limit'
+          ? 'Too many emails sent. Try again in a little while.'
+          : "We couldn't resend the email. Try again.",
+    };
+  }
+  return { sent: true };
 }
