@@ -39,7 +39,9 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Delete account removes the auth user (which cascades to profile, rankings and rank events) and the user's avatar file in Storage
 - Sentiment is an input to ranking only and is never shown back to the user (no tags, section headers or "last time" hints)
 - Usernames can be changed from Edit profile (same format rules, still unique); a cooldown will be added if profiles become public
-- The emailed confirmation link opens /auth/confirm (a route handler, not a page), which exchanges the code (or verifies the token hash once the email template can be customized) and sends the user to Profile
+- Emailed links open `/auth/confirm` (a route handler, not a page), which verifies the token hash (type `email` for sign-up, `recovery` for password reset) and sends the user to Profile or the reset page
+- Resetting a password signs the user out of every session on every device; they log in again with the new password
+- Auth responses never reveal whether an email has an account (login, sign-up and forgot-password give the same answer either way)
 
 # Design notes
 
@@ -104,8 +106,11 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 
 # Before launch
 
-- Buy the domain; set up custom SMTP (Resend or similar) and edit the confirmation email to use `token_hash`
-- Confirm "Confirm email" is on, and RLS is enabled on every table
+- Rate-limit the username availability check (it lets callers list usernames)
+- Require the current password (or a recent login) to change a password while logged in, and only allow the reset form for recovery sessions
+- Confirm "Confirm email" is on and RLS is enabled on every table
+- Check Supabase's auth rate limits, and decide how to handle email scanners that open one-time links
+- Add the production domain (and any preview URL pattern) to Supabase's redirect URLs
 - Choose a license; review MusicBrainz commercial terms and cover art licensing
 
 # Flows
@@ -135,7 +140,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 7. **Edit profile**
    - Profile -> Edit profile -> save -> Profile
 8. **Forgot password**
-   - Log in -> Forgot password (enter email) -> confirmation ("check your email") -> emailed link -> Reset password (new password) -> Log in
+   - Log in -> Forgot password (enter email) -> confirmation ("check your email") -> emailed link -> Reset password (new password) -> signed out everywhere -> Log in
 9. **Remove a record**
    - Album/Track page -> Remove from my list -> confirm -> Profile
 10. **Google sign-in**
@@ -167,6 +172,9 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Same email used for email/password and Google: Supabase links them by verified email (verify this behavior when building)
 - Forgot password for a Google-only account: same generic confirmation message, no hint about how the account signs in
 - User closes the Choose username screen: the app keeps redirecting them there until a username is chosen
+- Reset password opened directly, or with a used link: "This link can't be used" with a way to request a new one
+- New password equal to the current one: ask for a different one
+- A normally logged-in user can open /reset-password and set a new password without the old one (known limitation, see Before launch)
 
 # Tech stack
 
@@ -180,4 +188,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Testing: Vitest (unit), Playwright (end-to-end)
 - Storage: Supabase Storage
 - Image processing: sharp
+- Validation: Zod
+- Email: Resend (custom SMTP in Supabase)
+- Domain and DNS: Cloudflare
 - Later: Redis cache for MusicBrainz responses
