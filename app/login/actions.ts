@@ -1,8 +1,8 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { getOrigin } from '@/lib/origin';
 import { createClient } from '@/lib/supabase/server';
 import { logInSchema } from '@/lib/validation/auth';
 
@@ -44,7 +44,7 @@ export async function resendConfirmation(
   formData: FormData,
 ): Promise<ResendState> {
   const parsed = z.email().safeParse(String(formData.get('email') ?? ''));
-  const origin = (await headers()).get('origin');
+  const origin = await getOrigin();
   if (!parsed.success || !origin) {
     return { error: 'Something went wrong. Please try again.' };
   }

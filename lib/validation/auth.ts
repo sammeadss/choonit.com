@@ -6,14 +6,20 @@ export const usernameSchema = z
   // Must match the profiles_username_format check in db/schema.ts.
   .regex(/^[A-Za-z0-9_]{3,20}$/, 'Use 3 to 20 letters, numbers or underscores.');
 
+export const emailSchema = z.email('Enter a valid email address.');
+export const passwordSchema = z.string().min(8, 'Use at least 8 characters.');
+
 export const signUpSchema = z.object({
   username: usernameSchema,
-  email: z.email('Enter a valid email address.'),
-  password: z.string().min(8, 'Use at least 8 characters.'),
+  email: emailSchema,
+  password: passwordSchema,
 });
 
+export const forgotPasswordSchema = z.object({ email: emailSchema });
+export const resetPasswordSchema = z.object({ password: passwordSchema });
+
 export const logInSchema = z.object({
-  email: z.email('Enter a valid email address.'),
+  email: emailSchema,
   password: z.string().min(1, 'Enter your password.'),
 });
 
