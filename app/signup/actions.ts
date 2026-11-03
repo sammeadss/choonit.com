@@ -1,11 +1,11 @@
 'use server';
 
 import { sql } from 'drizzle-orm';
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/db';
 import { profiles } from '@/db/schema';
+import { getOrigin } from '@/lib/origin';
 import { createClient } from '@/lib/supabase/server';
 import { signUpSchema, usernameSchema } from '@/lib/validation/auth';
 
@@ -48,7 +48,7 @@ export async function signUp(_prev: SignUpState, formData: FormData): Promise<Si
     return { errors: z.flattenError(parsed.error).fieldErrors, values };
   }
 
-  const origin = (await headers()).get('origin');
+  const origin = await getOrigin();
   if (!origin) {
     return { errors: { form: ['Something went wrong. Please try again.'] }, values };
   }
