@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { getUserId } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { resetPasswordSchema } from '@/lib/validation/auth';
 
@@ -22,8 +23,7 @@ export async function updatePassword(
 
   const supabase = await createClient();
 
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) redirect('/reset-password?status=expired');
+  if (!(await getUserId())) redirect('/reset-password?status=expired');
 
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) {

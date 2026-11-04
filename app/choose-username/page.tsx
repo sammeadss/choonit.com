@@ -4,7 +4,7 @@ import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { db } from '@/db';
 import { profiles } from '@/db/schema';
-import { createClient } from '@/lib/supabase/server';
+import { getUserId } from '@/lib/auth';
 import { ChooseUsernameForm } from './choose-username-form';
 
 export default function ChooseUsernamePage() {
@@ -20,9 +20,7 @@ export default function ChooseUsernamePage() {
 async function ChooseUsernameContent() {
   // Supabase's token check reads the current time, so this must render at request time.
   await connection();
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub;
+  const userId = await getUserId();
   if (!userId) redirect('/login');
 
   const [profile] = await db

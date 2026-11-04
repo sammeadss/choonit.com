@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
-import { createClient } from '@/lib/supabase/server';
+import { getUserId } from '@/lib/auth';
 import { ResetPasswordForm } from './reset-password-form';
 
 export default function ResetPasswordPage(props: PageProps<'/reset-password'>) {
@@ -37,18 +37,13 @@ async function ResetPasswordContent({
     );
   }
 
-  if (status !== 'expired') {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getClaims();
-
-    if (data?.claims) {
-      return (
-        <>
-          <h1 className="font-heading text-4xl font-extrabold">Choose a new password.</h1>
-          <ResetPasswordForm />
-        </>
-      );
-    }
+  if (status !== 'expired' && (await getUserId())) {
+    return (
+      <>
+        <h1 className="font-heading text-4xl font-extrabold">Choose a new password.</h1>
+        <ResetPasswordForm />
+      </>
+    );
   }
 
   return (

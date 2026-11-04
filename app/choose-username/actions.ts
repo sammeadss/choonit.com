@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/db';
 import { profiles } from '@/db/schema';
-import { createClient } from '@/lib/supabase/server';
+import { getUserId } from '@/lib/auth';
 import { chooseUsernameSchema } from '@/lib/validation/auth';
 
 export type ChooseUsernameState = {
@@ -31,9 +31,7 @@ export async function saveUsername(
     return { errors: z.flattenError(parsed.error).fieldErrors, values };
   }
 
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub;
+  const userId = await getUserId();
   if (!userId) redirect('/login');
 
   try {

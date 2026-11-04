@@ -1,11 +1,7 @@
-import { eq } from 'drizzle-orm';
-import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { signOut } from '@/app/auth/actions';
-import { db } from '@/db';
-import { profiles } from '@/db/schema';
-import { createClient } from '@/lib/supabase/server';
+import { requireProfile } from '@/lib/auth';
 
 export default function ProfilePage() {
   return (
@@ -20,12 +16,7 @@ export default function ProfilePage() {
 async function ProfileContent() {
   // Supabase's token check reads the current time, so this must render at request time.
   await connection();
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getClaims();
-  const userId = data?.claims.sub;
-  if (!userId) redirect('/login');
-
-  const [profile] = await db.select().from(profiles).where(eq(profiles.id, userId)).limit(1);
+  const profile = await requireProfile();
 
   return (
     <>
