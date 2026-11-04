@@ -11,8 +11,21 @@ const PUBLIC_PATHS = [
   '/auth',
 ];
 
+const GUEST_ONLY_PATHS = ['/', '/login', '/signup', '/forgot-password'];
+
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+// Redirects while carrying over any refreshed session cookies, or the user could sign out.
+function redirectTo(request: NextRequest, source: NextResponse, pathname: string) {
+  const url = request.nextUrl.clone();
+  url.pathname = pathname;
+  url.search = '';
+
+  const redirect = NextResponse.redirect(url);
+  source.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+  return redirect;
 }
 
 export async function updateSession(request: NextRequest) {
@@ -40,11 +53,15 @@ export async function updateSession(request: NextRequest) {
 
   // Don't run anything between creating the client and getClaims(); it can sign users out at random.
   const { data } = await supabase.auth.getClaims();
+  const signedIn = Boolean(data?.claims);
+  const { pathname } = request.nextUrl;
 
-  if (!data?.claims && !isPublic(request.nextUrl.pathname)) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+  if (!signedIn && !isPublic(pathname)) {
+    return redirectTo(request, response, '/login');
+  }
+
+  if (signedIn && GUEST_ONLY_PATHS.includes(pathname)) {
+    return redirectTo(request, response, '/me');
   }
 
   return response;
