@@ -17,6 +17,7 @@ export const signUpSchema = z.object({
 
 export const forgotPasswordSchema = z.object({ email: emailSchema });
 export const resetPasswordSchema = z.object({ password: passwordSchema });
+export const chooseUsernameSchema = z.object({ username: usernameSchema });
 
 export const logInSchema = z.object({
   email: emailSchema,
