@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { signInWithGoogle } from '@/app/auth/actions';
 import { logIn, type LogInState } from './actions';
 import { ResendConfirmationForm } from './resend-confirmation-form';
 
@@ -11,6 +12,10 @@ export function LogInForm() {
   const [state, formAction, pending] = useActionState(logIn, initialState);
   return (
     <>
+      <form action={signInWithGoogle}>
+        <button type="submit">Continue with Google</button>
+      </form>
+
       <form action={formAction} className="mt-6 flex flex-col gap-4">
         <label className="flex flex-col gap-1">
           Email
