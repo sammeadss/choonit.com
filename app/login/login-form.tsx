@@ -1,8 +1,14 @@
 'use client';
 
-import Link from 'next/link';
 import { useActionState } from 'react';
-import { signInWithGoogle } from '@/app/auth/actions';
+import { GoogleButton } from '@/components/google-button';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { OrDivider } from '@/components/ui/or-divider';
+import { PasswordField } from '@/components/ui/password-field';
+import { TextField } from '@/components/ui/text-field';
+import { TextLink } from '@/components/ui/text-link';
 import { logIn, type LogInState } from './actions';
 import { ResendConfirmationForm } from './resend-confirmation-form';
 
@@ -10,49 +16,51 @@ const initialState: LogInState = {};
 
 export function LogInForm() {
   const [state, formAction, pending] = useActionState(logIn, initialState);
+
   return (
     <>
-      <form action={signInWithGoogle}>
-        <button type="submit">Continue with Google</button>
-      </form>
-
-      <form action={formAction} className="mt-6 flex flex-col gap-4">
-        <label className="flex flex-col gap-1">
-          Email
-          <input
+      <Card>
+        <GoogleButton />
+        <OrDivider />
+        <form action={formAction} noValidate className="flex flex-col gap-4">
+          <TextField
+            label="Email"
             name="email"
             type="email"
             autoComplete="email"
+            placeholder="you@example.com"
             defaultValue={state.values?.email}
             required
+            error={state.errors?.email?.[0]}
           />
-          <span role="alert">{state.errors?.email?.[0]}</span>
-        </label>
+          <PasswordField
+            label="Password"
+            name="password"
+            autoComplete="current-password"
+            placeholder="Your password"
+            required
+            error={state.errors?.password?.[0]}
+          />
+          <TextLink href="/forgot-password" className="self-start">
+            Forgot password?
+          </TextLink>
 
-        <label className="flex flex-col gap-1">
-          Password
-          <input name="password" type="password" autoComplete="current-password" required />
-          <span role="alert">{state.errors?.password?.[0]}</span>
-        </label>
+          {state.unconfirmedEmail ? (
+            <Alert title="Confirm your email first.">
+              We sent a link to {state.unconfirmedEmail} when you signed up.
+            </Alert>
+          ) : null}
+          {state.errors?.form?.[0] ? <Alert>{state.errors.form[0]}</Alert> : null}
 
-        <Link href="/forgot-password">Forgot password?</Link>
-
-        {state.unconfirmedEmail ? (
-          <p role="alert">
-            Confirm your email first. We sent a link to {state.unconfirmedEmail} when you signed up.
-          </p>
-        ) : null}
-        <span role="alert">{state.errors?.form?.[0]}</span>
-
-        <button type="submit" disabled={pending}>
-          {pending ? 'Logging in...' : 'Log in'}
-        </button>
-
-        <p>
-          New here? <Link href="/signup">Sign up</Link>
-        </p>
-      </form>
-      {state.unconfirmedEmail ? <ResendConfirmationForm email={state.unconfirmedEmail} /> : null}
+          <Button type="submit" disabled={pending}>
+            {pending ? 'Logging in...' : 'Log in'}
+          </Button>
+        </form>
+        {state.unconfirmedEmail ? <ResendConfirmationForm email={state.unconfirmedEmail} /> : null}
+      </Card>
+      <p className="mt-4">
+        New here? <TextLink href="/signup">Sign up</TextLink>
+      </p>
     </>
   );
 }
