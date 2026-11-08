@@ -20,7 +20,9 @@ async function ProfileContent() {
 
   return (
     <>
-      <h1 className="font-heading text-4xl font-extrabold">{profile?.username ?? 'Profile'}</h1>
+      <h1 className="font-heading text-4xl font-extrabold break-words">
+        {profile?.username ?? 'Profile'}
+      </h1>
       <p className="mt-2">
         {profile ? (profile.bio ?? 'No bio yet.') : "We couldn't find your profile."}
       </p>

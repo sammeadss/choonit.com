@@ -112,6 +112,9 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Check Supabase's auth rate limits, and decide how to handle email scanners that open one-time links
 - Add the production domain (and any preview URL pattern) to Supabase's redirect URLs
 - Choose a license; review MusicBrainz commercial terms and cover art licensing
+- Replace the placeholder G on the Google button with Google's official logo
+- Publish the Google OAuth consent screen (it's in Testing mode, which only allows listed test users)
+- Run the full auth flow on https://choonit.com (sign up, confirm, log in, reset, Google)
 
 # Flows
 
@@ -175,6 +178,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Reset password opened directly, or with a used link: "This link can't be used" with a way to request a new one
 - New password equal to the current one: ask for a different one
 - A normally logged-in user can open /reset-password and set a new password without the old one (known limitation, see Before launch)
+- Longest username (20 characters) at 360px: wraps instead of overflowing
 
 # Tech stack
 
