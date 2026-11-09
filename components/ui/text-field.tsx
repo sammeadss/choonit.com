@@ -13,7 +13,8 @@ export function TextField({ label, hint, error, endSlot, className, ...props }: 
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
-  const describedBy = [hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
+  const showHint = hint && !error;
+  const describedBy = [showHint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ');
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -35,7 +36,7 @@ export function TextField({ label, hint, error, endSlot, className, ...props }: 
         />
         {endSlot}
       </div>
-      {hint ? (
+      {showHint ? (
         <p id={hintId} className="text-xs text-muted">
           {hint}
         </p>
