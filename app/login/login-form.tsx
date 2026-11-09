@@ -2,6 +2,7 @@
 
 import { useActionState } from 'react';
 import { GoogleButton } from '@/components/google-button';
+import { ResendConfirmationForm } from '@/components/resend-confirmation-form';
 import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
 import { TextLink } from '@/components/ui/text-link';
 import { logIn, type LogInState } from './actions';
-import { ResendConfirmationForm } from './resend-confirmation-form';
 
 const initialState: LogInState = {};
 
