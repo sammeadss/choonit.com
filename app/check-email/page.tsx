@@ -1,13 +1,19 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { AuthShell } from '@/components/auth-shell';
+import { ResendConfirmationForm } from '@/components/resend-confirmation-form';
+import { buttonStyles } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { MailIcon } from '@/components/ui/icons';
+import { TextLink } from '@/components/ui/text-link';
+
+const headerAction = { href: '/login', label: 'Log in', variant: 'secondary' } as const;
 
 export default function CheckEmailPage(props: PageProps<'/check-email'>) {
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-10">
-      <Suspense>
-        <CheckEmailContent searchParams={props.searchParams} />
-      </Suspense>
-    </main>
+    <Suspense>
+      <CheckEmailContent searchParams={props.searchParams} />
+    </Suspense>
   );
 }
 
@@ -21,31 +27,51 @@ async function CheckEmailContent({
 
   if (status === 'expired') {
     return (
-      <>
-        <h1 className="font-heading text-4xl font-extrabold">This link can&apos;t be used.</h1>
-        <p className="mt-4">
-          Confirmation links work once and expire after an hour. If you already confirmed your
-          email, log in. Otherwise, sign up again to get a new link.
-        </p>
-        <p className="mt-6 flex gap-4">
-          <Link href="/login">Log in</Link>
-          <Link href="/signup">Sign up again</Link>
-        </p>
-      </>
+      <AuthShell
+        eyebrow="Confirm email"
+        title="This link can't be used."
+        description="Confirmation links work once and expire after an hour."
+        headerAction={headerAction}
+      >
+        <Card>
+          <p>
+            If you already confirmed your email, log in. Otherwise, sign up again for a new link.
+          </p>
+          <Link href="/login" className={buttonStyles({ className: 'mt-5' })}>
+            Log in
+          </Link>
+        </Card>
+        <TextLink href="/signup" className="mt-4">
+          Sign up again
+        </TextLink>
+      </AuthShell>
     );
   }
 
   return (
-    <>
-      <h1 className="font-heading text-4xl font-extrabold">Check your email.</h1>
-      <p className="mt-4">
-        We sent a confirmation link{address ? ` to ${address}` : ''}. Open it to finish creating
-        your account.
-      </p>
-      <p className="mt-6 flex gap-4">
-        <Link href="/signup">Use a different email</Link>
-        <Link href="/login">Back to log in</Link>
-      </p>
-    </>
+    <AuthShell
+      eyebrow="Confirm email"
+      title="Check your email."
+      description="Open the link we sent to finish creating your account."
+      headerAction={headerAction}
+    >
+      <Card>
+        <MailIcon className="size-8" />
+        <p className="mt-4">
+          We sent a confirmation link
+          {address ? (
+            <>
+              {' '}
+              to <strong className="break-all">{address}</strong>
+            </>
+          ) : null}
+          . It can take a few minutes. Check your spam folder too.
+        </p>
+        {address ? <ResendConfirmationForm email={address} startCooling /> : null}
+      </Card>
+      <TextLink href="/signup" className="mt-4">
+        Use a different email
+      </TextLink>
+    </AuthShell>
   );
 }
