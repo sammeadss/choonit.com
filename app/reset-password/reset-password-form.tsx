@@ -1,6 +1,9 @@
 'use client';
 
 import { useActionState } from 'react';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { PasswordField } from '@/components/ui/password-field';
 import { updatePassword, type ResetPasswordState } from './actions';
 
 const initialState: ResetPasswordState = {};
@@ -9,18 +12,22 @@ export function ResetPasswordForm() {
   const [state, formAction, pending] = useActionState(updatePassword, initialState);
 
   return (
-    <form action={formAction} className="mt-6 flex flex-col gap-4">
-      <label className="flex flex-col gap-1">
-        New password
-        <input name="password" type="password" autoComplete="new-password" minLength={8} required />
-        <span role="alert">{state.errors?.password?.[0]}</span>
-      </label>
+    <form action={formAction} noValidate className="flex flex-col gap-4">
+      <PasswordField
+        label="New password"
+        name="password"
+        autoComplete="new-password"
+        placeholder="At least 8 characters"
+        required
+        hint="Use at least 8 characters."
+        error={state.errors?.password?.[0]}
+      />
 
-      <span role="alert">{state.errors?.form?.[0]}</span>
+      {state.errors?.form?.[0] ? <Alert>{state.errors.form[0]}</Alert> : null}
 
-      <button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending}>
         {pending ? 'Saving...' : 'Save new password'}
-      </button>
+      </Button>
     </form>
   );
 }
