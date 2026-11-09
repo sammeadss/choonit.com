@@ -1,16 +1,19 @@
 import Link from 'next/link';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
+import { AuthShell } from '@/components/auth-shell';
+import { buttonStyles } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { getUserId } from '@/lib/auth';
 import { ResetPasswordForm } from './reset-password-form';
 
+const headerAction = { href: '/login', label: 'Log in', variant: 'secondary' } as const;
+
 export default function ResetPasswordPage(props: PageProps<'/reset-password'>) {
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-10">
-      <Suspense>
-        <ResetPasswordContent searchParams={props.searchParams} />
-      </Suspense>
-    </main>
+    <Suspense>
+      <ResetPasswordContent searchParams={props.searchParams} />
+    </Suspense>
   );
 }
 
@@ -25,36 +28,50 @@ async function ResetPasswordContent({
 
   if (status === 'success') {
     return (
-      <>
-        <h1 className="font-heading text-4xl font-extrabold">Password updated.</h1>
-        <p className="mt-4" role="status">
-          Your password has been changed. Log in with it next.
-        </p>
-        <p className="mt-6">
-          <Link href="/login">Log in</Link>
-        </p>
-      </>
+      <AuthShell
+        eyebrow="Reset password"
+        title="Password updated."
+        description="You're signed out everywhere. Log in with your new password."
+        headerAction={headerAction}
+      >
+        <Card role="status">
+          <p>Your password has been changed.</p>
+          <Link href="/login" className={buttonStyles({ className: 'mt-5' })}>
+            Log in
+          </Link>
+        </Card>
+      </AuthShell>
     );
   }
 
   if (status !== 'expired' && (await getUserId())) {
     return (
-      <>
-        <h1 className="font-heading text-4xl font-extrabold">Choose a new password.</h1>
-        <ResetPasswordForm />
-      </>
+      <AuthShell
+        eyebrow="Reset password"
+        title="Choose a new password."
+        description="You'll log in again with it afterwards."
+        headerAction={headerAction}
+      >
+        <Card>
+          <ResetPasswordForm />
+        </Card>
+      </AuthShell>
     );
   }
 
   return (
-    <>
-      <h1 className="font-heading text-4xl font-extrabold">This link can&apos;t be used.</h1>
-      <p className="mt-4">
-        Reset links work once and expire after an hour. Request a new one to continue.
-      </p>
-      <p className="mt-6">
-        <Link href="/forgot-password">Request a new link</Link>
-      </p>
-    </>
+    <AuthShell
+      eyebrow="Reset password"
+      title="This link can't be used."
+      description="It may have expired or already been used."
+      headerAction={headerAction}
+    >
+      <Card>
+        <p>Reset links work once and expire after an hour. Request a new one to continue.</p>
+        <Link href="/forgot-password" className={buttonStyles({ className: 'mt-5' })}>
+          Request a new link
+        </Link>
+      </Card>
+    </AuthShell>
   );
 }
