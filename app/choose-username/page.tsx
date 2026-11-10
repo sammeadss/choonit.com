@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
+import { AuthShell } from '@/components/auth-shell';
 import { db } from '@/db';
 import { profiles } from '@/db/schema';
 import { getUserId } from '@/lib/auth';
@@ -9,11 +10,15 @@ import { ChooseUsernameForm } from './choose-username-form';
 
 export default function ChooseUsernamePage() {
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-10">
+    <AuthShell
+      eyebrow="Almost there"
+      title="Choose your username."
+      description="Pick the name that will show on your profile."
+    >
       <Suspense>
         <ChooseUsernameContent />
       </Suspense>
-    </main>
+    </AuthShell>
   );
 }
 
@@ -31,11 +36,5 @@ async function ChooseUsernameContent() {
 
   if (!profile || profile.usernameChosen) redirect('/me');
 
-  return (
-    <>
-      <h1 className="font-heading text-4xl font-extrabold">Choose your username.</h1>
-      <p className="mt-4">Pick the name that will show on your profile.</p>
-      <ChooseUsernameForm defaultUsername={profile.username} />
-    </>
-  );
+  return <ChooseUsernameForm defaultUsername={profile.username} />;
 }
