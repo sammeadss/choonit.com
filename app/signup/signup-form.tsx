@@ -9,6 +9,7 @@ import { OrDivider } from '@/components/ui/or-divider';
 import { PasswordField } from '@/components/ui/password-field';
 import { TextField } from '@/components/ui/text-field';
 import { TextLink } from '@/components/ui/text-link';
+import { UsernameField } from '@/components/username-field';
 import { useUsernameAvailability } from '@/lib/use-username-availability';
 import { signUp, type SignUpState } from './actions';
 
@@ -18,20 +19,6 @@ export function SignUpForm() {
   const [state, formAction, pending] = useActionState(signUp, initialState);
   const [username, setUsername] = useState('');
   const status = useUsernameAvailability(username, username.length > 0);
-
-  const hints = {
-    idle: '3 to 20 letters, numbers or underscores.',
-    checking: "Checking if it's available...",
-    available: `${username} is available.`,
-    taken: undefined,
-    invalid: undefined,
-  };
-  const liveError =
-    status === 'taken'
-      ? 'That username is taken. Try another.'
-      : status === 'invalid'
-        ? 'Use 3 to 20 letters, numbers or underscores.'
-        : undefined;
   // The server's error only applies to the name it was given.
   const serverError = username === state.values?.username ? state.errors?.username?.[0] : undefined;
 
@@ -41,16 +28,11 @@ export function SignUpForm() {
         <GoogleButton />
         <OrDivider />
         <form action={formAction} noValidate className="flex flex-col gap-4">
-          <TextField
-            label="Username"
-            name="username"
-            autoComplete="username"
-            placeholder="your_name"
+          <UsernameField
             value={username}
-            onChange={(event) => setUsername(event.target.value)}
-            required
-            hint={hints[status]}
-            error={liveError ?? serverError}
+            onChange={setUsername}
+            status={status}
+            serverError={serverError}
           />
           <TextField
             label="Email"
