@@ -4,7 +4,7 @@ A music rating platform on the web.
 
 # Purpose
 
-Choonit lets you log music you've listened to and rank it by comparing it against music you've already logged. Instead of picking a number, you tell Choonit how you felt (loved it, it was fine, or not for me) and answer a few "which is better" comparisons, and Choonit places the record in your personal ranked list and mathematically derives a score from its position.
+Choonit lets you log music you've listened to and rank it by comparing it against music you've already logged. Instead of picking a number, you tell Choonit how you felt (a perfect 10, loved it, it was fine, or not for me) and answer a few "which is better" comparisons, and Choonit places the record in your personal ranked list and mathematically derives a score from its position.
 
 # Scope
 
@@ -17,7 +17,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 
 # Decisions
 
-- Score is 0–10: the record's sentiment sets a range, and its position within that range sets the exact score (formula to be defined; relative, shifts as the list grows)
+- Score is 0–10 and comes from the record's sentiment band and its position within that band (see Scoring)
 - Albums are MusicBrainz release groups (type Album or EP); Tracks are MusicBrainz recordings. A Single release group maps to its track.
 - Optional factor sliders are stored with each rank event and never affect the score (factor list and N/A rule below)
 - Re-ranking keeps history: each rank event (position, score, factor values) is stored with a date
@@ -25,7 +25,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Factors are Production, Lyrics, Originality, Melody, Replay value, Emotion, Cultural impact; sliders are 0–10 in half steps; a slider only counts once touched; only Lyrics can be marked N/A
 - Compare: the record being ranked stays pinned; the opposing card is replaced after each answer; The screen never shows list positions or ranges; the result is revealed only after the last answer; "Skip" swaps in another record from the same range (hidden on the final question), no undo
 - Username: chosen at sign-up, 3–20 characters (letters, numbers, underscores), unique
-- Sentiment (loved / fine / not for me) is asked before comparisons; comparisons only happen within the same sentiment
+- Sentiment (perfect / loved / fine / not for me) is asked before comparisons; comparisons only happen within the same sentiment
 - Profile rows are created by a database trigger on sign-up, so sign-up either fully succeeds or fully fails
 - Avatars: server-side upload, JPEG/PNG/WebP only, 2 MB cap, magic-byte check, re-encoded and resized, server-generated filename, stored in Supabase Storage
 - Factors: optional; a profile setting (`show_factors`) controls whether bars are displayed
@@ -42,6 +42,25 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Emailed links open `/auth/confirm` (a route handler, not a page), which verifies the token hash (type `email` for sign-up, `recovery` for password reset) and sends the user to Profile or the reset page
 - Resetting a password signs the user out of every session on every device; they log in again with the new password
 - Auth responses never reveal whether an email has an account (login, sign-up and forgot-password give the same answer either way)
+
+# Scoring
+
+- Sentiment picks a band, and the record's position inside that band picks the exact score:
+
+| Sentiment  | Band         |
+| ---------- | ------------ |
+| Perfect    | exactly 10.0 |
+| Loved      | 7.0 to 9.9   |
+| Fine       | 4.0 to 7.0   |
+| Not for me | 0.0 to 4.0   |
+
+- In a band of `m` records, the record at position `p` (1 is best) scores `high - ((p - 0.5) / m) * (high - low)`: the band is cut into `m` equal slices and each record sits in the middle of its slice
+- Every Perfect record scores 10.0; they are still compared with each other, so rank keeps them in order
+- Slice centers never touch a band's edges, so bands never overlap and only Perfect can reach 10.0
+- Scores are relative: adding a record shifts the others in its band slightly. Each rank event stores the score it had at the time, and the current score is calculated from the current list
+- One decimal is shown, and rank is the true order (neighbors in a large band can show the same score)
+- Known limits: gaps between neighbors are assumed equal, one mistaken answer can misplace a record (re-rank to fix it), and there are no ties except Perfect
+- Later options: a "too close to call" answer, and stored scores that don't shift
 
 # Design notes
 
