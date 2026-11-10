@@ -6,6 +6,7 @@ import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useCooldown } from '@/lib/use-cooldown';
 
+// Matches Supabase's default 60 second minimum between emails to one address.
 const COOLDOWN_SECONDS = 60;
 const initialState: ResendState = {};
 
