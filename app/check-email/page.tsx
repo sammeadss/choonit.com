@@ -62,7 +62,7 @@ async function CheckEmailContent({
           {address ? (
             <>
               {' '}
-              to <strong className="break-all">{address}</strong>
+              to <strong className="break-words">{address}</strong>
             </>
           ) : null}
           . It can take a few minutes. Check your spam folder too.
