@@ -6,7 +6,7 @@ import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useCooldown } from '@/lib/use-cooldown';
 
-const COOLDOWN_SECONDS = 30;
+const COOLDOWN_SECONDS = 60;
 const initialState: ResendState = {};
 
 export function ResendConfirmationForm({
