@@ -1,6 +1,10 @@
 'use client';
 
 import { useActionState, useState } from 'react';
+import { Alert } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { UsernameField } from '@/components/username-field';
 import { useUsernameAvailability } from '@/lib/use-username-availability';
 import { saveUsername, type ChooseUsernameState } from './actions';
 
@@ -10,38 +14,25 @@ export function ChooseUsernameForm({ defaultUsername }: { defaultUsername: strin
   const [state, formAction, pending] = useActionState(saveUsername, initialState);
   const [username, setUsername] = useState(defaultUsername);
   const status = useUsernameAvailability(username, username !== defaultUsername);
-
-  const messages = {
-    idle: 'Replace the generated name to continue. Use 3 to 20 letters, numbers or underscores.',
-    checking: "Checking if it's available...",
-    available: `${username} is available.`,
-    taken: 'That username is taken. Try another.',
-    invalid: 'Use 3 to 20 letters, numbers or underscores.',
-  };
+  const serverError = username === state.values?.username ? state.errors?.username?.[0] : undefined;
 
   return (
-    <form action={formAction} className="mt-6 flex flex-col gap-4">
-      <label className="flex flex-col gap-1">
-        Username
-        <input
-          name="username"
-          type="text"
-          autoComplete="username"
+    <Card>
+      <form action={formAction} noValidate className="flex flex-col gap-4">
+        <UsernameField
           value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          required
+          onChange={setUsername}
+          status={status}
+          serverError={serverError}
+          idleHint="Replace the generated name to continue. Use 3 to 20 letters, numbers or underscores."
         />
-      </label>
 
-      <p role={status === 'taken' || status === 'invalid' ? 'alert' : 'status'}>
-        {messages[status]}
-      </p>
-      <span role="alert">{state.errors?.username?.[0]}</span>
-      <span role="alert">{state.errors?.form?.[0]}</span>
+        {state.errors?.form?.[0] ? <Alert>{state.errors.form[0]}</Alert> : null}
 
-      <button type="submit" disabled={status !== 'available' || pending}>
-        {pending ? 'Saving...' : 'Save username'}
-      </button>
-    </form>
+        <Button type="submit" disabled={status !== 'available' || pending}>
+          {pending ? 'Saving...' : 'Save username'}
+        </Button>
+      </form>
+    </Card>
   );
 }

@@ -6,7 +6,7 @@ type AuthShellProps = {
   eyebrow: string;
   title: string;
   description?: string;
-  headerAction: { href: string; label: string; variant?: 'primary' | 'secondary' };
+  headerAction?: { href: string; label: string; variant?: 'primary' | 'secondary' };
   children: ReactNode;
 };
 
@@ -21,15 +21,17 @@ export function AuthShell({ eyebrow, title, description, headerAction, children 
           >
             choonit
           </Link>
-          <Link
-            href={headerAction.href}
-            className={buttonStyles({
-              variant: headerAction.variant,
-              className: 'min-h-11 w-auto px-4 text-sm focus-visible:outline-on-royal',
-            })}
-          >
-            {headerAction.label}
-          </Link>
+          {headerAction ? (
+            <Link
+              href={headerAction.href}
+              className={buttonStyles({
+                variant: headerAction.variant,
+                className: 'min-h-11 w-auto px-4 text-sm focus-visible:outline-on-royal',
+              })}
+            >
+              {headerAction.label}
+            </Link>
+          ) : null}
         </div>
       </header>
 
