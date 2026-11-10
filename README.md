@@ -115,6 +115,8 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - Replace the placeholder G on the Google button with Google's official logo
 - Publish the Google OAuth consent screen (it's in Testing mode, which only allows listed test users)
 - Run the full auth flow on https://choonit.com (sign up, confirm, log in, reset, Google)
+- `/check-email?email=` is user-controlled, so its Resend button can target any address; rely on Supabase's rate limits or add server-side throttling
+- Announce the live username status to screen readers (aria-live), and keep focus on the Resend button while it cools down (aria-disabled instead of disabled)
 
 # Flows
 
@@ -179,6 +181,7 @@ Choonit lets you log music you've listened to and rank it by comparing it agains
 - New password equal to the current one: ask for a different one
 - A normally logged-in user can open /reset-password and set a new password without the old one (known limitation, see Before launch)
 - Longest username (20 characters) at 360px: wraps instead of overflowing
+- Resend confirmation email: the button is disabled for 60 seconds after each send, matching Supabase's per-address minimum
 
 # Tech stack
 
